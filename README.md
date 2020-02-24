@@ -60,6 +60,8 @@ We do need to install a custom Credential Provider on this VM because the authen
 [samba]:https://www.samba.org/
 [windows]:https://www.microsoft.com/
 
+# Prepare your screts...
+
 # ZeroTier preparation.
 We need a private net prepared. If you do not yet have an account with Zerotier, create one.
 In Zerotier, create a network, you can choose between different private network IP ranges, for example: 192.168.100/24

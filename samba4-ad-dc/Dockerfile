@@ -48,7 +48,6 @@ RUN rm /etc/krb5.conf && \
 
 ADD scripts/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 ADD scripts/init.sh /init.sh
-ADD scripts/samba_backup /usr/sbin/samba_backup
 RUN chmod 755 /init.sh
 RUN rm -r /home/samba/
 RUN apt-get clean

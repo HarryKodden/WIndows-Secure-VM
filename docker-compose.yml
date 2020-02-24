@@ -20,7 +20,17 @@ services:
     image: guacamole/guacd
     environment:
       GUACD_LOG_LEVEL: info
-#     GUACD_LOG_LEVEL: debug
+
+  guacamole_initdb:
+    image: guacamole/guacamole
+    volumes:
+      - ./var/guacamole:/tmp
+    command:
+      - /bin/sh
+      - -c
+      - |
+        /opt/guacamole/bin/initdb.sh --postgres > /var/initdb.sql
+        tail -f /dev/null
 
   db_guacamole:
     image: postgres:9.1
@@ -31,9 +41,10 @@ services:
       POSTGRES_USER: ${GUACAMOLE_DB_USER}
       POSTGRES_PASSWORD: ${GUACAMOLE_DB_PASS}
     restart: always
+    depends_on:
+      - guacamole_initdb
     volumes:
-    - ./etc/guacamole:/docker-entrypoint-initdb.d:ro
-    - ./var/guacamole:/var/lib/postgresql/data/guacamole:rw
+      - ./var/guacamole:/var/lib/postgresql/data/guacamole:rw
 
   guacamole_admin:
     image: guacamole/guacamole
