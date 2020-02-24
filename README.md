@@ -60,8 +60,6 @@ We do need to install a custom Credential Provider on this VM because the authen
 [samba]:https://www.samba.org/
 [windows]:https://www.microsoft.com/
 
-# Prepare your screts...
-
 # ZeroTier preparation.
 We need a private net prepared. If you do not yet have an account with Zerotier, create one.
 In Zerotier, create a network, you can choose between different private network IP ranges, for example: 192.168.100/24
@@ -69,6 +67,47 @@ In Zerotier, create a network, you can choose between different private network 
 You will be given a unique Network ID, take note of the that ID, for example **1a2b3cd4e5**
 
 # Docker stack.
+
+De **docker-compose.yml** file defines several services, some are based on standard images, others are based on custom **Dockerfile** specifications.
+
+## Prepare your secrets
+First thing you need before docker can be launched, is to provide your own secrets that will be used during docker execution.
+Create your own **.env** file containing following constants.
+
+```
+DOMAIN=<the top level domain, for example: EXAMPLE.COM>
+
+PID_DATABASE_ROOT=<secret>
+PID_DATABASE_NAME=pi
+PID_DATABASE_USER=pi
+PID_DATABASE_PASS=<secret>
+
+SAMBA_ADMIN_PASSWORD=<secret>
+SAMBA_ROOT_PASSWORD=<secret>
+SAMBA_KERBEROS_PASSWORD=<secret>
+
+PID_ADMIN_PASSWORD=<secret>
+PID_SECRET=<secret>
+PID_PEPPER=<secret>
+
+GUACAMOLE_API_USER=api
+GUACAMOLE_API_PASS=<secret>
+
+GUACAMOLE_DB_NAME=db_guacamole
+GUACAMOLE_DB_USER=guacamole_user
+GUACAMOLE_DB_PASS=<secret>
+
+ZEROTIER_IP_ADDRESS=<put in value as explained in README>
+ZEROTIER_NETWORK_ID=<put in value as explained in README>
+```
+For all **\<secret\>** values, put in your own secret value, unique values might be generated for example using:
+
+```
+python  -c 'import uuid; print uuid.uuid4()'
+```
+
+## Docker build...
+
 The docker stack is straight forward.
 
 One of the services is the zerotier service. This is standard image.
