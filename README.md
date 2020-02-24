@@ -70,6 +70,11 @@ You will be given a unique Network ID, take note of the that ID, for example **1
 
 De **docker-compose.yml** file defines several services, some are based on standard images, others are based on custom **Dockerfile** specifications.
 
+**Note:**
+
+This docker-compose will not run if your docker host is OSX. This is because https://docs.docker.com/docker-for-mac/networking/
+
+
 ## Prepare your secrets
 First thing you need before docker can be launched, is to provide your own secrets that will be used during docker execution.
 Create your own **.env** file containing following constants.
@@ -110,7 +115,16 @@ python  -c 'import uuid; print uuid.uuid4()'
 
 The docker stack is straight forward.
 
-One of the services is the zerotier service. This is standard image.
+You can now build all images by:
+```
+docker-compose build
+```
+
+This will take quite a while...
+
+## One time initialization...
+
+One of the services is the zerotier service.
 Instead of lauching all services, we start by launching the Zerotier service exclusively first.
 
 ```
@@ -190,7 +204,10 @@ Select a Cloud Provider platform of your choice and launch a Windows 10 VM.
 As a Administrar of this VM connect to this machine run following steps
 
 - Install Zerotier (download Windows MSI from Zerotier website)
+https://download.zerotier.com/dist/ZeroTier%20One.msi
+
 - Start Zerotier application and join network (example: 1a2b3cd4e5)
+
 - On Zerotier portal, grant connection of this new machine to your private network
 
 Your machine has now access to the private network. You can check that you can reach the docker host, by opening a Command Prompt window, and type:

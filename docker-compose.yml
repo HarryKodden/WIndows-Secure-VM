@@ -29,7 +29,7 @@ services:
       - /bin/sh
       - -c
       - |
-        /opt/guacamole/bin/initdb.sh --postgres > /var/initdb.sql
+        /opt/guacamole/bin/initdb.sh --postgres > /tmp/initdb.sql
         tail -f /dev/null
 
   db_guacamole:
@@ -44,7 +44,8 @@ services:
     depends_on:
       - guacamole_initdb
     volumes:
-      - ./var/guacamole:/var/lib/postgresql/data/guacamole:rw
+      - ./var/guacamole/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql:ro
+      - ./var/guacamole/data:/var/lib/postgresql/data/guacamole
 
   guacamole_admin:
     image: guacamole/guacamole
@@ -64,6 +65,8 @@ services:
     links:
       - guacd
       - db_guacamole:postgres
+    depends_on:
+      - db_guacamole
     environment:
       GUACD_HOSTNAME: guacd
       GUACD_PORT: 4822
@@ -72,13 +75,15 @@ services:
       POSTGRES_USER: ${GUACAMOLE_DB_USER}
       POSTGRES_PASSWORD: ${GUACAMOLE_DB_PASS}
       GUACAMOLE_HOME: /home
+    ports:
+      - 8080:8080
     command:
       - /bin/sh
       - -c
       - |
         sh -c "cd /tmp; curl -s http://ftp.nluug.nl/internet/apache/guacamole/1.1.0/binary/guacamole-auth-header-1.1.0.tar.gz  | tar xzvf -"
-        ln -s /tmp/guacamole-auth-header-1.1.0/guacamole-auth-header-1.1.0.jar:/home/extensions/guacamole-auth-header-1.1.0.jar
-        cp /etc/privacyidea/pi.cfg.template /etc/privacyidea/pi.cfg
+        mkdir -p $${GUACAMOLE_HOME}/extensions
+        ls -s /tmp/guacamole-auth-header-1.1.0/guacamole-auth-header-1.1.0.jar $${GUACAMOLE_HOME}/extensions/guacamole-auth-header-1.1.0.jar
         /opt/guacamole/bin/start.sh
 
 # git clone https://github.com/tgiesela/samba4-ad-dc.git
@@ -103,12 +108,11 @@ services:
       - ${ZEROTIER_IP_ADDRESS}:464:464
       - ${ZEROTIER_IP_ADDRESS}:464:464/udp
       - 636:636
-      - ${ZEROTIER_IP_ADDRESS}:49152-49200:49152-49200
     container_name: samba
     environment:
       - SAMBA_HOSTNAME=dc
       - SAMBA_DOMAIN=ad
-      - SAMBA_REALM=ad.example.net
+      - SAMBA_REALM=ad.${DOMAIN}
       - SAMBA_HOST_IP=${ZEROTIER_IP_ADDRESS}
       - SAMBA_ADMIN_PASSWORD=${SAMBA_ADMIN_PASSWORD}
       - SAMBA_DNS_FORWARDER=8.8.8.8
@@ -116,11 +120,11 @@ services:
       - KERBEROS_PASSWORD=${SAMBA_KERBEROS_PASSWORD}
     depends_on:
       - zerotier
-    dns_search: ad.example.net
+    dns_search: ad.${DOMAIN}
     dns: 127.0.0.1
     hostname: dc
     extra_hosts:
-      - ad.example.net:${ZEROTIER_IP_ADDRESS}
+      - ad.${DOMAIN}:${ZEROTIER_IP_ADDRESS}
 
   db_pid:
     image: mysql:5.7
@@ -163,6 +167,8 @@ services:
       - pid
       - guacamole_admin:admin
       - samba
+    depends_on:
+      - zerotier
     environment:
       GUACAMOLE_HOST: admin
       GUACAMOLE_PORT: 8080
