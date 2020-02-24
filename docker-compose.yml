@@ -1,0 +1,203 @@
+version: '2'
+
+services:
+
+  zerotier:
+    build: zerotier
+    container_name: zerotier-one
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    devices:
+      - /dev/net/tun
+    environment:
+      NETWORK_ID: ${ZEROTIER_NETWORK_ID}
+    volumes:
+      - ./var/zerotier:/var/lib/zerotier-one
+
+  guacd:
+    image: guacamole/guacd
+    environment:
+      GUACD_LOG_LEVEL: info
+#     GUACD_LOG_LEVEL: debug
+
+  db_guacamole:
+    image: postgres:9.1
+    hostname: db_guacamole
+    environment:
+      PGDATA: /var/lib/postgresql/data/guacamole
+      POSTGRES_DB: ${GUACAMOLE_DB_NAME}
+      POSTGRES_USER: ${GUACAMOLE_DB_USER}
+      POSTGRES_PASSWORD: ${GUACAMOLE_DB_PASS}
+    restart: always
+    volumes:
+    - ./etc/guacamole:/docker-entrypoint-initdb.d:ro
+    - ./var/guacamole:/var/lib/postgresql/data/guacamole:rw
+
+  guacamole_admin:
+    image: guacamole/guacamole
+    links:
+      - guacd
+      - db_guacamole:postgres
+    environment:
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_DATABASE: ${GUACAMOLE_DB_NAME}
+      POSTGRES_USER: ${GUACAMOLE_DB_USER}
+      POSTGRES_PASSWORD: ${GUACAMOLE_DB_PASS}
+
+  guacamole_public:
+    image: guacamole/guacamole
+    links:
+      - guacd
+      - db_guacamole:postgres
+    environment:
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_DATABASE: ${GUACAMOLE_DB_NAME}
+      POSTGRES_USER: ${GUACAMOLE_DB_USER}
+      POSTGRES_PASSWORD: ${GUACAMOLE_DB_PASS}
+      GUACAMOLE_HOME: /home
+    command:
+      - /bin/sh
+      - -c
+      - |
+        sh -c "cd /tmp; curl -s http://ftp.nluug.nl/internet/apache/guacamole/1.1.0/binary/guacamole-auth-header-1.1.0.tar.gz  | tar xzvf -"
+        ln -s /tmp/guacamole-auth-header-1.1.0/guacamole-auth-header-1.1.0.jar:/home/extensions/guacamole-auth-header-1.1.0.jar
+        cp /etc/privacyidea/pi.cfg.template /etc/privacyidea/pi.cfg
+        /opt/guacamole/bin/start.sh
+
+# git clone https://github.com/tgiesela/samba4-ad-dc.git
+  samba:
+    build: samba4-ad-dc
+    privileged: true
+    volumes:
+      - ./var/samba:/var/lib/samba
+      - ./etc/samba:/etc/samba
+    ports:
+      - ${ZEROTIER_IP_ADDRESS}:53:53
+      - ${ZEROTIER_IP_ADDRESS}:53:53/udp
+      - ${ZEROTIER_IP_ADDRESS}:88:88
+      - ${ZEROTIER_IP_ADDRESS}:88:88/udp
+      - ${ZEROTIER_IP_ADDRESS}:123:123/udp
+      - ${ZEROTIER_IP_ADDRESS}:135:135
+      - ${ZEROTIER_IP_ADDRESS}:137-138:137-138/udp
+      - ${ZEROTIER_IP_ADDRESS}:139:139
+      - ${ZEROTIER_IP_ADDRESS}:389:389
+      - ${ZEROTIER_IP_ADDRESS}:389:389/udp
+      - ${ZEROTIER_IP_ADDRESS}:445:445
+      - ${ZEROTIER_IP_ADDRESS}:464:464
+      - ${ZEROTIER_IP_ADDRESS}:464:464/udp
+      - 636:636
+      - ${ZEROTIER_IP_ADDRESS}:49152-49200:49152-49200
+    container_name: samba
+    environment:
+      - SAMBA_HOSTNAME=dc
+      - SAMBA_DOMAIN=ad
+      - SAMBA_REALM=ad.example.net
+      - SAMBA_HOST_IP=${ZEROTIER_IP_ADDRESS}
+      - SAMBA_ADMIN_PASSWORD=${SAMBA_ADMIN_PASSWORD}
+      - SAMBA_DNS_FORWARDER=8.8.8.8
+      - ROOT_PASSWORD=${SAMBA_ROOT_PASSWORD}
+      - KERBEROS_PASSWORD=${SAMBA_KERBEROS_PASSWORD}
+    depends_on:
+      - zerotier
+    dns_search: ad.example.net
+    dns: 127.0.0.1
+    hostname: dc
+    extra_hosts:
+      - ad.example.net:${ZEROTIER_IP_ADDRESS}
+
+  db_pid:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PID_DATABASE_ROOT}
+      PID_DATABASE_NAME: ${PID_DATABASE_NAME}
+      PID_DATABASE_USER: ${PID_DATABASE_USER}
+      PID_DATABASE_PASS: ${PID_DATABASE_PASS}
+    volumes:
+#     - pid_database:/var/lib/mysql
+      - ./data/pid:/var/lib/mysql
+      - ./etc/pid/init_db.sh:/docker-entrypoint-initdb.d/init_db.sh:ro
+
+  pid:
+    build:
+      context: pid
+    links:
+      - db_pid
+    volumes:
+      - ./etc/pid:/etc/privacyidea
+    environment:
+      PRIVACYIDEA_CONFIGFILE: /etc/privacyidea/pi.cfg
+    command:
+      - /bin/sh
+      - -c
+      - |
+        cp /etc/privacyidea/pi.cfg.template /etc/privacyidea/pi.cfg
+        sed -e "s|\$$PID_DATABASE_URI|mysql://${PID_DATABASE_USER}:${PID_DATABASE_PASS}@db_pid/${PID_DATABASE_NAME}|" -i /etc/privacyidea/pi.cfg
+        sed -e "s|\$$PID_SECRET|${PID_SECRET}|" -i /etc/privacyidea/pi.cfg
+        sed -e "s|\$$PID_PEPPER|${PID_PEPPER}|" -i /etc/privacyidea/pi.cfg
+        pi-manage createdb
+        pi-manage create_enckey
+        pi-manage create_audit_keys
+        pi-manage admin add admin -p ${PID_ADMIN_PASSWORD}
+        PYTHONPATH=/privacyidea /etc/privacyidea/app.py
+
+  api:
+    build: api
+    links:
+      - pid
+      - guacamole_admin:admin
+      - samba
+    environment:
+      GUACAMOLE_HOST: admin
+      GUACAMOLE_PORT: 8080
+      GUACAMOLE_USER: ${GUACAMOLE_API_USER}
+      GUACAMOLE_PASS: ${GUACAMOLE_API_PASS}
+      GUACAMOLE_CONNECTION: 2
+      SAMBA_HOST: samba
+      SAMBA_USER: Administrator
+      SAMBA_PASS: ${SAMBA_ADMIN_PASSWORD}
+      SAMBA_REALM: ad.example.net
+      PID_URL: http://pid:5000/pid/validate/check
+      PORT: 8080
+
+  sp:
+    build: sp
+    volumes:
+      - ./etc/sp/cert/sp.crt:/opt/data/certs/sp.crt
+      - ./etc/sp/cert/sp.key:/opt/data/certs/sp.key
+      - ./etc/letsencrypt:/etc/letsencrypt:ro
+      - ./etc/lua:/usr/local/apache2/lua
+      - ./etc/www/:/var/www/html
+    environment:
+      DOMAIN: $DOMAIN
+      SP_HOSTNAME: $DOMAIN
+      SP_KEY: /opt/data/certs/sp.crt
+      SP_KEY: /opt/data/certs/sp.key
+      DISABLE_SUBJECT_CONFIRMATION: "True"
+#     REMOTE_USER_VAR: UID
+      REMOTE_USER_VAR: MAIL
+      REMOTE_USER_NAME: REMOTE_USER
+      SSL_CERT: /etc/letsencrypt/live/${DOMAIN}/fullchain.pem
+      SSL_KEY: /etc/letsencrypt/live/${DOMAIN}/privkey.pem
+    links:
+      - pid
+      - api
+      - guacamole_admin:admin
+      - guacamole_public:public
+    ports:
+      - 80:80
+      - 443:443
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir /opt/data/metadata
+        wget https://meta.pilot.scz.lab.surf.nl/proxy_idp.xml -O /opt/data/metadata/idp.xml
+        bash /entrypoint.sh
+
+# docker run -ti -v $PWD/etc/letsencrypt:/etc/letsencrypt -v $PWD/var/www/html2:/var/www/html certbot/certbot certonly --email harry.kodden@surfnet.nl --webroot --webroot-path=/var/www/html --no-eff-email --staging -d 145.100.57.105.surf-hosted.nl

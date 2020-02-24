@@ -82,20 +82,17 @@ Now we can join to the private network, by following command
 ```
 docker exec zerotier-one zerotier-cli join <network-id>
 ```
-(*) substitute <network-id> with the value of the network ID that you have taken note of during Zerotier Preparation in previous paragraph
-
+Note: substitute <network-id> with the value of the network ID that you have taken note of during Zerotier Preparation in previous paragraph
 According to the given example, this will look like:
 ```
 docker exec zerotier-one zerotier-cli join 1a2b3cd4e5
 ```
-
 You have not requested to join tho this Zerotier Network, but that request must be granted before actual connection takes place. For granting this connection, go back to the Zerotier website and look into the details of your network. You should see a new entry. Just check the box of that entry and this makes this a trusted connection in your private network.
-
 Going back to your docker host, you can now verify that the connection with zeroier was succesful:
 ```
 route -n
 ```
-
+Example response:
 ```
 $ route -n
 Kernel IP routing table
@@ -106,7 +103,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
 ```
 
-Here you zee that the interface for your Zerotier network is named **ztabc**
+Here you see that the interface for your Zerotier network is named **ztabc**
 
 You can now find the IP address you hav been given, by
 
