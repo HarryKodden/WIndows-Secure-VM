@@ -1,6 +1,8 @@
 # Secure Windows VM Desktop
 
-[ WORK IN PROGRESS ]
+## Synopsis
+
+This document demonstrates the combination of tools working together in order to facilitate the user with a secure Windows desktop with no client side requirements other than a HTML5 capable browser.
 
 ## Introduction
 
@@ -258,22 +260,66 @@ Next, we need some additional adjustments on this VM:
 - Disconnect IPV6 (for now)
 - JOIN domain
 - Allow Remote Desktop for "Everyuser"
-- Firewall windows inkomend 3389 (Add Remote Desktop APP)
-- Switch off NLA (Remote Desktop Settings)
 - install VC_REDIST
 - Install SCZ Credential Provider
 - Restart VM
+
+### Adjust Network properties
+
+As administrator, right-click on Explorer windowns at **Network**
+
+![Windows Netwprk Properties](doc/windows-network-properties.png)
+
+
+### Adjust Firewall to allow Remote Desktop connections
+
+As administrator, start "firewall"
+
+![Windows Firewall](doc/windows-firewall.png)
+
+Ckick on left menu option **Allow an app or feature...**
+
+![Windows Firewall Adjust](doc/windows-firewall-adjust.png)
+
+Scroll down to **Remote Desktop** and mark the option in front of this line as well as the marks in the 3 network columns (Domain, Private and Public)
+
+![Windows Firewall Allow RDP](doc/windows-firewall-allow-rdp.png)
+
+### Switch Off Network Level Authentication (NLA)
+
+As administrator, start "Remote Desktop Settings"
+
+![Windows NLA](doc/windows-NLA.png)
+
+Switch On **Enable Remote Desktop**
+
+![Windows NLA Settings](doc/windows-NLA-settings.png)
+
+Click on Advanced Settings...
+
+![Windows NLA Advanced Settings](doc/windows-NLA-Advanced-Settings.png)
+
+Disable **Require computers to use Network Level Authentication to connect**
 
 # PrivacyIdea Administrator actions
 
 One off the started services is the PrivacyIdea Administrator portal.
 
-< TO BE SPECIFIED IN MORE DETAIL >
+As a minimal, PrivacyIdae needs to be configured to specify what is the source the user-store. In this example we configure the user store to be a LDAP reference.
 
-- Change Administrator Password
-- Setup LDAP link to SCZ user LDAP
-- some more configuration steps
-- ...
+![User](doc/privacyIdea-user.png)
+
+Choose **new ldapresolver** will let you confugure the required LDAP settings
+
+![ldap](doc/privacyIdea-ldap.png)
+
+Now that we have LDAP setup, we create a default **realm** so that users are resolved using the LDAP Resolver.
+
+![realm](doc/privacyIdea-realm.png)
+
+Next, we can continue with configuring tokens to allowed to be used by our users, for example TOTP (as used by Google Authenticator)
+
+![User](doc/privacyIdea-tokens-TOTP.png)
 
 # Guacamole Administrator actions
 
