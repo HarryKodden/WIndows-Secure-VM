@@ -250,26 +250,38 @@ Ethernet adapter ZeroTier One [1a2b3cd4e5]:
 
 We need the IP Addres of this Windows VM for configuring Guacamole later on.
 
-### Further configuration of Windows
-
-Next, we need some additional adjustments on this VM:
-
-< TO BE SPECIFIED IN MORE DETAIL >
-
-- Change IPV4 properties, DNS -> SAMBA host
-- Disconnect IPV6 (for now)
-- JOIN domain
-- Allow Remote Desktop for "Everyuser"
-- install VC_REDIST
-- Install SCZ Credential Provider
-- Restart VM
-
-### Adjust Network properties
+### Change Network Adapter properties
 
 As administrator, right-click on Explorer windowns at **Network**
 
 ![Windows Netwprk Properties](doc/windows-network-properties.png)
 
+
+#### DNS -> SAMBA host
+
+#### Disconnect IPV6 (for now)
+
+Select line with Internet Protocol 6 (TCP/IPv6) and disable the checkbox in front of it.
+
+![Windows Network Disable IPv6](doc/windows-network-disable-ipv6.png)
+
+#### Adjust Preferred DNS
+
+Select line with Internet Protocol 4 (TCP/IPv4) and click on properties.
+
+![Windows Network Properties IPv4](doc/windows-network-properties-ipv4.png)
+
+Set preferred DNS to the IP Address that was cocncluded during ZeroTier host installation, in this document **192.168.100.173**
+
+![Windows Network Properties IPv4 DNS](doc/windows-network-properties-ipv4-dns.png)
+
+### Join Domain
+
+### Allow Remote Desktop for "Everyuser"
+
+### install VC_REDIST
+
+### Install SCZ Credential Provider
 
 ### Adjust Firewall to allow Remote Desktop connections
 
@@ -300,6 +312,10 @@ Click on Advanced Settings...
 ![Windows NLA Advanced Settings](doc/windows-NLA-Advanced-Settings.png)
 
 Disable **Require computers to use Network Level Authentication to connect**
+
+## Restart VM
+
+Now that we have so many adjustments to our VM, let's give Windows some quality time for itself to ruminate these changes, Restart the machine !
 
 # PrivacyIdea Administrator actions
 
