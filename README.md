@@ -285,9 +285,9 @@ On the next screen, select **Change Settings**
 
 ![Windows Machine Name Settings](doc/windows-machine-name-settings.png)
 
-this will show the **System Properties** dialog, now choose **Network ID...**
+this will show the **System Properties** dialog, now choose **Change...**
 
-![Windows Machine Name Network ID](doc/windows-machine-name-network-id.png)
+![Windows Machine Name Network ID](doc/windows-machine-name-change.png)
 
 Suppose you have selected **example.com** as your **DOMAIN** constant in your configuration settings, then fill in **ad.example.com** in the Domain field:
 
