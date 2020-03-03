@@ -303,7 +303,30 @@ This will take some time, but finally it will respond like:
 
 ![Windows Domain Welcome](doc/windows-machine-welcome-domain.png)
 
-### Allow Remote Desktop for "Everyuser"
+### RDP Settings
+
+As administrator, start "select users" and open this setting.
+
+![Windows RDP users](doc/windows-machine-rdp-users.png)
+
+On next screen:
+* unselect **Allow Remote Assistance connections to this computer**
+* unselect **Only allow ... with Network Level Authentication ...**
+* Clink **Select Users...**
+
+![Windows RDP Settings](doc/windows-machine-rdp-settings.png)
+
+On the next screen, make sure that **AD\Domain Users** are listed.
+
+![Windows RDP Allowed Users](doc/windows-machine-rdp-allowed-users.png)
+
+If not, click **Add...** and type in **AD\Domain Users** and hit OK.
+
+![Windows RDP Domain Users](doc/windows-machine-rdp-allow-domain-users.png)
+
+You will be asked to enter doman administrator credentials, user **Administrator** and the **SAMBA_ADMIN_PASSWORD** fropm your configuration secret passwords.
+
+![Windows RDP Settings](doc/windows-machine-domain-authenticate.png)
 
 ### install VC_REDIST
 
