@@ -477,10 +477,10 @@ Enter following details:
 * [ Guacamole Proxy Paramaters (GUACD) ]
   * Hostname: **guacd**
   * Port: **4822**
-  * Encryption: **None (unencrypted)**
+  * Encryption: **None (unencrypted)**  
   **Note**: *Do not worry about this unencrypted settings, this is internal traffic taking place between docker containers and not visible outside the docker host. All traffic via public Internet is encrypted via SSL.*
 * [ Parameters / Network ]
-  * Hostname: **192.168.100.148**
+  * Hostname: **192.168.100.148**  
    **Note**: *this is the IP address of the Windows VM as concluded during Windows Zerotier Configuration*
   *  Port: **3389**
 *  [ Parameters / Authentication ]
