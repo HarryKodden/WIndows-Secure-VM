@@ -277,6 +277,32 @@ Set preferred DNS to the IP Address that was cocncluded during ZeroTier host ins
 
 ### Join Domain
 
+As administrator, start explorer, right click **This Machine** and select **properties**
+
+![Windows Machine Properties](doc/windows-machine-properties.png)
+
+On the next screen, select **Change Settings**
+
+![Windows Machine Name Settings](doc/windows-machine-name-settings.png)
+
+this will show the **System Properties** dialog, now choose **Network ID...**
+
+![Windows Machine Name Network ID](doc/windows-machine-name-network-id.png)
+
+Suppose you have selected **example.com** as your **DOMAIN** constant in your configuration settings, then fill in **ad.example.com** in the Domain field:
+
+![Windows Domain Credentials](doc/windows-machine-domain-join.png)
+
+and hit **OK**
+
+You will be asked to enter the domain Administrator credentials. Please use **Administrator** as username and the password you have chosen earlier as your **SAMBA_ADMIN_PASSWORD**.
+
+![Windows Domain Credentials](doc/windows-machine-domain-credentials.png)
+
+This will take some time, but finally it will respond like:
+
+![Windows Domain Welcome](doc/windows-machine-welcome-domain.png)
+
 ### Allow Remote Desktop for "Everyuser"
 
 ### install VC_REDIST
