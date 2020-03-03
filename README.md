@@ -309,7 +309,7 @@ Switch On **Enable Remote Desktop**
 
 Click on Advanced Settings...
 
-![Windows NLA Advanced Settings](doc/windows-NLA-Advanced-Settings.png)
+![Windows NLA Advanced Settings](doc/windows-NLA-advanced-settings.png)
 
 Disable **Require computers to use Network Level Authentication to connect**
 
