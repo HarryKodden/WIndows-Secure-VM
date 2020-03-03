@@ -14,7 +14,6 @@ In order to provide a secure and shielded working environment, we want to establ
 3. Once authenticated, members are requested to setup 1 or more access tokens. Each token must be extra secured with u pincode. Access tokens are used as a unique shortliving application specific password to logon and unlock a Windows RDP desktop.
 4. The RDP session must use a secure channel and no further ports on the Windows VM should be accessible.
 5. If members are removed from the team, the access to the service should no longer be possible.
-6. ...
 
 
 For a better uderstanding below picture makes clear what the landscape looks like.
@@ -54,6 +53,24 @@ We do need to install a custom Credential Provider on this VM because the authen
   4. Back in Windows credential provider, serialize the returned credentials and hand over to Windows kernel for regular kerberos validation against Active Directory. This will succeed, since the Active Directory is containing same credentials.
 
  
+## Prerequisites
+Please be noted that deploying the software stack as described in this repository, requires some prerequisites:
+* FQDN (Fully Qualified Domain name)
+You need a **Domain** name as well as a DNS A record that resolves to the machine at which you want to deploy this software stack. You should have administrator privileges on that machine.
+In this docoument, we will use **example.com** as the DOMAIN name
+* You need an account on a cloud provider platform at which you can request for a fresh Windows 10 VM image to be launched.
+* You need an (free) account at zerotier.com (or sign up for one)
+* You need some knwoledge of **docker** and **docker-compose**
+
+## Acknowledgements
+Credits for the work of others that is used in this software stack;
+* [Apache GuacaMole][guacamole]
+* [Lets Encrypt][letsencrypt]
+* [Microsoft Sample Code][microsoft]
+* [privacyIdea][privacyidea]
+* [WiX Toolset][WiX]
+* [Zerotier][zerotier]
+
 [scz]:https://sbs.pilot.scz.lab.surf.nl
 [docker]:[https://www.docker.com/]
 [privacyidea]:https://www.privacyidea.org/
@@ -61,14 +78,17 @@ We do need to install a custom Credential Provider on this VM because the authen
 [guacamole]:https://guacamole.apache.org/
 [samba]:https://www.samba.org/
 [windows]:https://www.microsoft.com/
+[microsoft]:https://github.com/microsoft/Windows-classic-samples
+[WiX]:https://wixtoolset.org
+[letsencrypt]:https://letsencrypt.org/
 
-# ZeroTier preparation.
+# ZeroTier Preparation
 We need a private net prepared. If you do not yet have an account with Zerotier, create one.
 In Zerotier, create a network, you can choose between different private network IP ranges, for example: 192.168.100/24
 
 You will be given a unique Network ID, take note of the that ID, for example **1a2b3cd4e5**
 
-# Docker stack.
+# Docker
 
 De **docker-compose.yml** file defines several services, some are based on standard images, others are based on custom **Dockerfile** specifications.
 
@@ -431,11 +451,50 @@ Next, we can continue with configuring tokens to allowed to be used by our users
 
 # Guacamole Administrator actions
 
-One off the started services is the Guacamole Administrator portal.
+When the **docker** services have succesfully started, one off the started services is the Guacamole Administrator portal.
 
-< TO BE SPECIFIED IN MORE DETAIL >
+You can reach this portal with you webbrowser at:
 
-- Change Administrator Password
-- Configuration: Specify link to Guac Daemon
-- Create connection link to Windows VM 
+```
+https://<YOUR DOMAIN>/admin/
+```
+
+Log in with initial credentials:
+```
+guacadmin/guacadmin
+```
+
+on this portal go to menu (top right) and select settings.
+* on the **Preferences** tab, adjust your administrator password immediately
+
+When changed, select **Connections** tab and create *New*
+
+Enter following details:
+* [ Connection ]
+  * Name: **Windows 10**
+  * Location: **ROOT**
+  * Protocol: **RDP**
+* [ Guacamole Proxy Paramaters (GUACD) ]
+  * Hostname: **guacd**
+  * Port: **4822**
+  * Encryption: **None (unencrypted)**
+  **Note**: *Do not worry about this unencrypted settings, this is internal traffic taking place between docker containers and not visible outside the docker host. All traffic via public Internet is encrypted via SSL.*
+* [ Parameters / Network ]
+  * Hostname: **192.168.100.148**
+   **Note**: *this is the IP address of the Windows VM as concluded during Windows Zerotier Configuration*
+*  Port: **3389**
+*  [ Parameters / Authentication ]
+   *  Domain: **AD**
+   *  Security Mode: **TLS encryption**
+   *  Disable Authentication: **True**
+   *  Ignore server certificate: **True**
+* [ Parameters / Display ]
+  * Color Depth: **True Color (32-bit)**
   
+Save these details.
+  
+# SCZ Preparations...
+
+Last but not least we need to have an SCZ Colloboration membership.
+
+\<TO BE CONTINUED\>
