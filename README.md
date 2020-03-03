@@ -201,12 +201,59 @@ docker-compose up -d
 
 Select a Cloud Provider platform of your choice and launch a Windows 10 VM.
 
+## Install required MSI packages
+
+We need some additional components to be installed on this Windows VM:
+
+* Zerotier
+Install from https://download.zerotier.com/dist/ZeroTier%20One.msi
+
+* Microsoft Visual Studio Redistributable
+Downlod from https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
+Make sure you the version you select matches your Windows VM version and is suitable for Visual Studiu 2019
+
+* SCZ Credential Provider
+This package is included in this repository:
+[SCZ Credential Provider](msi/SCZ_CredentialProvider_Setup.msi)
+
+### Install SCZ Credential Provider
+
+Start the MSI, the following screen will be presented
+
+![SCZ install Credential Provider](doc/windows-install-SCZ_credential-provider.png)
+
+Read and accept the license agreement, and click **Next**
+
+![SCZ SCZ license](doc/windows-SCZ-license.png)
+
+Select Core compoents to be installed plus the default provider to be this Credential Provider, and click **Next**
+
+![SCZ SCZ Components](doc/windows-SCZ-components.png)
+
+Now enter the address of the **FQDN** (Fully Qualified Domain Name) at which your server host is reachable. This is the service host at which the Docker-compose was executed. This docker-compose includes de API service that this SCZ Credential Provider depends on.
+
+When done, click **Next**
+
+![SCZ SCZ API Address](api/../doc/windows-SCZ-API-address.png)
+
+Optionally you can adjust some other settings, then click **Next**
+
+![SCZ SCZ API Address](api/../doc/windows-SCZ-optional-settings.png)
+
+Now press **Install**
+
+![SCZ SCZ Install](api/../doc/windows-SCZ-install.png)
+
+You must approve this application to make changes to your VM...
+
+![SCZ SCZ Install Approve](api/../doc/windows-SCZ-install-approve.png)
+
+After installation, you will be instructed to restart your VM.
+When that is completed, continue with some additional configuration described in more detail below.
+
 ### Network configuration
 
-As a Administrar of this VM connect to this machine run following steps
-
-- Install Zerotier (download Windows MSI from Zerotier website)
-https://download.zerotier.com/dist/ZeroTier%20One.msi
+As a Administrator of this VM connect to this machine run following steps
 
 - Start Zerotier application and join network (example: 1a2b3cd4e5)
 
@@ -327,10 +374,6 @@ If not, click **Add...** and type in **AD\Domain Users** and hit OK.
 You will be asked to enter doman administrator credentials, user **Administrator** and the **SAMBA_ADMIN_PASSWORD** fropm your configuration secret passwords.
 
 ![Windows RDP Settings](doc/windows-machine-domain-authenticate.png)
-
-### install VC_REDIST
-
-### Install SCZ Credential Provider
 
 ### Adjust Firewall to allow Remote Desktop connections
 
