@@ -482,7 +482,7 @@ Enter following details:
 * [ Parameters / Network ]
   * Hostname: **192.168.100.148**
    **Note**: *this is the IP address of the Windows VM as concluded during Windows Zerotier Configuration*
-*  Port: **3389**
+  *  Port: **3389**
 *  [ Parameters / Authentication ]
    *  Domain: **AD**
    *  Security Mode: **TLS encryption**
@@ -497,4 +497,18 @@ Save these details.
 
 Last but not least we need to have an SCZ Colloboration membership.
 
+\<TO BE CONTINUED\>
+
+# Proof of working !
+
+## Invite a member
+\<TO BE CONTINUED\>
+
+## have this member accept membership
+\<TO BE CONTINUED\>
+
+## have this member setup his personal token(s)
+\<TO BE CONTINUED\>
+
+## have this member logon to the Window VM Desktop !
 \<TO BE CONTINUED\>
